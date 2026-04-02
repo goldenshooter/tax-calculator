@@ -1,45 +1,24 @@
 import { useEffect, useState } from 'react'
-import { Input, Select } from 'antd'
+import { Card, Flex, Input, Select, Statistic, Typography } from 'antd'
 import { fetchTaxBands, type TaxBand } from './api/mockTaxApi'
-import { calculateProgressiveTax } from './utils'
+import {
+  calculateProgressiveTax,
+  convertToYearlySalary,
+  items,
+  PERIODS,
+  type Period,
+} from './utils'
 import './App.css'
 
-const PERIODS = {
-  HOURLY: 'Hourly',
-  WEEKLY: 'Weekly',
-  MONTHLY: 'Monthly',
-  YEARLY: 'Yearly',
-} as const
-
-const items = [
-  {
-    value: PERIODS.HOURLY,
-    label: PERIODS.HOURLY,
-  },
-  {
-    value: PERIODS.WEEKLY,
-    label: PERIODS.WEEKLY,
-  },
-  {
-    value: PERIODS.MONTHLY,
-    label: PERIODS.MONTHLY,
-  },
-  {
-    value: PERIODS.YEARLY,
-    label: PERIODS.YEARLY,
-  },
-] as const
-
-type Period = (typeof items)[number]['value']
+const { Title, Text } = Typography
 
 function App() {
   const [salary, setSalary] = useState<string>('')
   const [taxToPay, setTaxToPay] = useState<number>(0)
   const [taxBands, setTaxBands] = useState<TaxBand[]>([])
   const [isLoadingBands, setIsLoadingBands] = useState<boolean>(true)
-  const [period, setPeriod] = useState<Period>(PERIODS.YEARLY) // default to yearly.
+  const [period, setPeriod] = useState<Period>(PERIODS.YEARLY)
 
-  // could try React 19 useTransition.
   // load tax bands on mount.
   useEffect(() => {
     const loadBands = async () => {
@@ -62,42 +41,92 @@ function App() {
       return
     }
 
-    let yearlySalary = 0
-    // convert salary to yearly based on selected option, for simplicity we assume 40 working hours per week and 52 weeks per year.
-    switch (period) {
-      case PERIODS.HOURLY: // Hourly
-        yearlySalary = salaryNum * 40 * 52
-        break
-      case PERIODS.WEEKLY: // Weekly
-        yearlySalary = salaryNum * 52
-        break
-      case PERIODS.MONTHLY: // Monthly
-        yearlySalary = salaryNum * 12
-        break
-      default:
-        yearlySalary = salaryNum
-        break
-    }
+    const yearlySalary = convertToYearlySalary(salaryNum, period)
     const tax = calculateProgressiveTax(yearlySalary, taxBands)
     setTaxToPay(tax)
   }, [salary, taxBands, period])
 
+  const salaryNum = parseFloat(salary)
+  const grossPay = !isNaN(salaryNum) && salaryNum > 0 ? convertToYearlySalary(salaryNum, period) : 0
+  const tax = isLoadingBands ? 0 : taxToPay
+  const takeHomePay = Math.max(grossPay - tax, 0)
+
   return (
-    <div className="page-container">
-      <h1>Salary Calculator</h1>
-      <Input
-        placeholder="Enter your salary"
-        value={salary}
-        onChange={(e) => setSalary(e.target.value)}
-        style={{ width: 200 }}
-      />
-      <Select
-        value={period}
-        onChange={(value) => setPeriod(value)}
-        options={[...items]}
-        style={{ width: 200, marginTop: 20 }}
-      />
-      <p>{isLoadingBands ? 'Loading tax bands...' : `Tax to pay: ${taxToPay.toFixed(2)}`}</p>
+    <div className="calculator-container">
+      <Card variant="borderless" className="main-card">
+        <Flex vertical gap={20} style={{ width: '100%' }}>
+          <div className="header-block">
+            <Title level={3} className="main-title">
+              Salary Tax Calculator
+            </Title>
+            <Text type="secondary" className="subtitle">
+              Estimate your annual tax instantly with current tax bands.
+            </Text>
+          </div>
+
+          <Flex className="input-row" gap={16}>
+            <div className="field-group">
+              <Text>Salary Amount</Text>
+              <Input
+                prefix="$"
+                placeholder="e.g. 80,000"
+                value={salary}
+                onChange={(e) => setSalary(e.target.value)}
+                size="large"
+              />
+            </div>
+
+            <div className="field-group">
+              <Text className="field-label">Period</Text>
+              <Select
+                value={period}
+                onChange={(value) => setPeriod(value)}
+                options={[...items]}
+                size="large"
+                style={{ width: '100%' }}
+              />
+            </div>
+          </Flex>
+
+          <Card size="small" className="result-card">
+            <Flex vertical gap={16}>
+              <Statistic
+                title="Tax"
+                value={tax}
+                precision={2}
+                prefix="$"
+                loading={isLoadingBands}
+                valueStyle={{ fontSize: 42, fontWeight: 700 }}
+              />
+
+              <Flex gap={12} wrap="wrap">
+                <div className="stat-box">
+                  <Statistic
+                    title="Gross Pay"
+                    value={grossPay}
+                    precision={2}
+                    prefix="$"
+                    loading={isLoadingBands}
+                  />
+                </div>
+                <div className="stat-box">
+                  <Statistic
+                    title="Take Home Pay"
+                    value={takeHomePay}
+                    precision={2}
+                    prefix="$"
+                    loading={isLoadingBands}
+                  />
+                </div>
+              </Flex>
+
+              <Typography.Text type="secondary">
+                Estimate only. Final tax may vary based on deductions and personal circumstances.
+              </Typography.Text>
+            </Flex>
+          </Card>
+        </Flex>
+      </Card>
     </div>
   )
 }
