@@ -93,7 +93,7 @@ function App() {
 
   return (
     <div className="calculator-container">
-      <Flex vertical gap={16} className="calculator-shell">
+      <Flex vertical gap={16}>
         <Card variant="borderless" className="main-card">
           <Flex vertical gap={20} style={{ width: '100%' }}>
             <div className="header-block">
