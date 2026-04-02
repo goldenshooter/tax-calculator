@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import App from './App'
@@ -16,11 +16,15 @@ describe('App', () => {
   it('calculates yearly tax after entering salary', async () => {
     render(<App />)
 
-    const salaryInput = screen.getByRole('textbox', { name: /enter your salary/i })
+    const salaryInput = screen.getByRole('textbox')
     await userEvent.type(salaryInput, '80000')
 
-    await waitFor(() => {
-      expect(screen.getByText('Tax to pay: 19230.00')).toBeDefined()
-    })
+    expect(screen.getByText('Tax')).toBeDefined()
+    expect(screen.getByText('Gross Pay')).toBeDefined()
+    expect(screen.getByText('Take Home Pay')).toBeDefined()
+
+    expect(screen.getByText('19,230')).toBeDefined()
+    expect(screen.getByText('80,000')).toBeDefined()
+    expect(screen.getByText('60,770')).toBeDefined()
   })
 })
