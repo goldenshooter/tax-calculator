@@ -7,7 +7,7 @@ export const PERIODS = {
   YEARLY: 'Yearly',
 } as const
 
-export const items = [
+export const ITEMS = [
   {
     value: PERIODS.HOURLY,
     label: PERIODS.HOURLY,
@@ -26,7 +26,7 @@ export const items = [
   },
 ] as const
 
-export type Period = (typeof items)[number]['value']
+export type Period = (typeof ITEMS)[number]['value']
 
 export const calculateProgressiveTax = (income: number, bands: TaxBand[]) => {
   let totalTax = 0
@@ -59,3 +59,10 @@ export const calculateProgressiveTax = (income: number, bands: TaxBand[]) => {
         return salaryNum
     }
   }
+
+  export const currencyFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })
