@@ -47,22 +47,22 @@ export const calculateProgressiveTax = (income: number, bands: TaxBand[]) => {
   return totalTax
 }
 
- export const convertToYearlySalary = (salaryNum: number, selectedPeriod: Period) => {
-    switch (selectedPeriod) {
-      case PERIODS.HOURLY:
-        return salaryNum * 40 * 52
-      case PERIODS.WEEKLY:
-        return salaryNum * 52
-      case PERIODS.MONTHLY:
-        return salaryNum * 12
-      default:
-        return salaryNum
-    }
+export const convertToYearlySalary = (salaryNum: number, selectedPeriod: Period) => {
+  switch (selectedPeriod) {
+    case PERIODS.HOURLY:
+      return salaryNum * 40 * 52
+    case PERIODS.WEEKLY:
+      return salaryNum * 52
+    case PERIODS.MONTHLY:
+      return salaryNum * 12
+    default:
+      return salaryNum
   }
+}
 
-  export const currencyFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  })
+export const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+})

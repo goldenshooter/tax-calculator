@@ -2,6 +2,11 @@
 
 A simple React app that calculates income tax using progressive tax bands from local mock data.
 
+# Live Demo
+
+https://goldenshooter.github.io/tax-calculator/
+
+
 ## What This App Does
 
 - Lets you enter salary as hourly, weekly, monthly, or yearly
